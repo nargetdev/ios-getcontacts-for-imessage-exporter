@@ -1,24 +1,17 @@
-//
-//  ContentView.swift
-//  getcontacts
-//
-//  Created by Ms Whiskers on 2/19/24.
-//
-
 import SwiftUI
-
 import Contacts
+
+// Define a struct to hold contact info
+struct ContactInfo: Codable {
+    var phoneNumber: String
+    var contactName: String
+}
 
 func fetchAndMatchContacts() async -> [String] {
     let store = CNContactStore()
-    var results: [String] = []
+    var contactsInfo: [ContactInfo] = []
+    
     do {
-        let JSON_not_CSV = true
-        if JSON_not_CSV{
-            print("{")
-        } else {
-            print("number, name")
-        }
         let granted = try await store.requestAccess(for: .contacts)
         guard granted else {
             print("Access to contacts was denied.")
@@ -30,27 +23,26 @@ func fetchAndMatchContacts() async -> [String] {
         try store.enumerateContacts(with: request) { (contact, stop) in
             for phoneNumber in contact.phoneNumbers {
                 let number = phoneNumber.value.stringValue
-                // Implement your matching logic here
-                // If matched, append to results
-                if (JSON_not_CSV){
-                    print("\"\(number)\": \"\(contact.familyName)_\(contact.givenName)\",")
-                }
-                else {
-                    print("\(number), \(contact.familyName) \(contact.givenName)")
-                }
+                let name = "\(contact.familyName)_\(contact.givenName)"
+                // Add contact info to the array
+                contactsInfo.append(ContactInfo(phoneNumber: number, contactName: name))
             }
         }
-        if (JSON_not_CSV){
-            print("}")
+        
+        // Convert contactsInfo array to JSON
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = .prettyPrinted // For readability
+        let jsonData = try encoder.encode(contactsInfo)
+        if let jsonString = String(data: jsonData, encoding: .utf8) {
+            print(jsonString)
         }
-        return results
+        
+        return contactsInfo.map { "\($0.phoneNumber): \($0.contactName)" }
     } catch {
         print("Failed to fetch contacts: \(error)")
         return []
     }
-    
 }
-
 
 struct ContentView: View {
     var body: some View {
@@ -60,8 +52,7 @@ struct ContentView: View {
                 .foregroundStyle(.tint)
             Text("Hello, world!")
             
-            Button("getContact") {
-                
+            Button("Get Contacts") {
                 // Call the async function
                 Task {
                     let matchedContacts = await fetchAndMatchContacts()
@@ -73,6 +64,4 @@ struct ContentView: View {
     }
 }
 
-#Preview {
-    ContentView()
-}
+// Preview struct omitted for brevity
