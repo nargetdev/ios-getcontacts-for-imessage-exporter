@@ -23,7 +23,7 @@ func fetchAndMatchContacts() async -> [String] {
         try store.enumerateContacts(with: request) { (contact, stop) in
             for phoneNumber in contact.phoneNumbers {
                 let number = phoneNumber.value.stringValue
-                let name = "\(contact.familyName)_\(contact.givenName)"
+                let name = "\(contact.givenName)_\(contact.familyName)"
                 // Add contact info to the array
                 contactsInfo.append(ContactInfo(phoneNumber: number, contactName: name))
             }
