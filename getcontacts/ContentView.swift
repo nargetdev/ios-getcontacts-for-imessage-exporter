@@ -13,9 +13,9 @@ func fetchAndMatchContacts() async -> [String] {
     let store = CNContactStore()
     var results: [String] = []
     do {
-        let JSON_not_CSV = false
+        let JSON_not_CSV = true
         if JSON_not_CSV{
-            print("[")
+            print("{")
         } else {
             print("number, name")
         }
@@ -33,7 +33,7 @@ func fetchAndMatchContacts() async -> [String] {
                 // Implement your matching logic here
                 // If matched, append to results
                 if (JSON_not_CSV){
-                    print("{\"number\":" + " \"\(number)\", \"name\": \"\(contact.familyName) \(contact.givenName)\"},")
+                    print("\"\(number)\": \"\(contact.familyName)_\(contact.givenName)\",")
                 }
                 else {
                     print("\(number), \(contact.familyName) \(contact.givenName)")
@@ -41,7 +41,7 @@ func fetchAndMatchContacts() async -> [String] {
             }
         }
         if (JSON_not_CSV){
-            print("]")
+            print("}")
         }
         return results
     } catch {
